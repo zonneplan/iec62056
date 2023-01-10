@@ -1,10 +1,17 @@
 // a telegram is a list of objects
 
+//telegrams : (telegram _CRLF*)+
+telegrams : telegram+
+
 telegram : header_iec objects footer_iec
          | header_dsmr objects _CRLF footer_dsmr
 
 header_iec : "/" vendor version model _CRLF "\x02"
-header_dsmr : LF? "/" vendor version _dsmr_header_seperator? model _CRLF _CRLF
+header_dsmr : LF? "/"  header_id _CRLF? _CRLF
+
+header_id: header_id_standard | header_id_vendor
+header_id_standard: vendor version _dsmr_header_seperator? model
+header_id_vendor : (CHARACTER | "\\" | " ")+
 
 _dsmr_header_seperator : "\x02"
                       | "\2"
@@ -59,7 +66,7 @@ DATETIME : DIGIT~12
 DST : "S"
     | "W"
 
-CHARACTER : "A".."Z" | "a".."z" | "0".."9" | "." | "-" | "_" | " "
+CHARACTER : "A".."Z" | "a".."z" | "0".."9" | "." | "-" | "_"
 STRING : CHARACTER+
 
 // we don't need CRLF. Besides, Kamstrup multical lacks trailing CRLF on last object
